@@ -14,20 +14,14 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.get(`/urls/${Object.keys(urlDatabase)[0]}`, (req, res) => {
-  const templateVars = {urls: urlDatabase,
-    longURL: Object.values(urlDatabase)[0],
-    id: Object.keys(urlDatabase)[0]};
-  res.render("urls_show", templateVars);
-});
-
-app.get(`/urls/${Object.keys(urlDatabase)[1]}`, (req, res) => {
-  const templateVars = {urls: urlDatabase,
-    longURL: Object.values(urlDatabase)[1],
-    id: Object.keys(urlDatabase)[1]};
-  res.render("urls_show", templateVars);
-});
-
+for (const amount in urlDatabase) {
+  app.get(`/urls/${amount}`, (req, res) => {
+    const templateVars = {urls: urlDatabase,
+      longURL: urlDatabase[amount],
+      id: amount};
+    res.render("urls_show", templateVars);
+  });
+}
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
