@@ -49,6 +49,14 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+//Define route for handling deletion of shortened URL
+
+app.post("/urls/:id/delete", (req, res) => {
+  const id = req.params.id;
+  delete urlDatabase[id];
+  res.redirect("/urls");
+});
+
 //Define route for returning to full website once clicked
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
