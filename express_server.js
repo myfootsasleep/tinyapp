@@ -16,7 +16,7 @@ const generateShortUrl = () => {
 };
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighouselabs.ca",
+  "b2xVn2": "http://www.lighthouselabs.ca",
   "9ssm5xk": "http://www.google.com"
 };
 
@@ -47,6 +47,12 @@ app.get("/urls/:id", (req, res) => {
     id: req.params.id
   };
   res.render("urls_show", templateVars);
+});
+
+//Define route for returning to full website once clicked
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);
 });
 
 //Define route for returning JSON object of the urlDatabase
