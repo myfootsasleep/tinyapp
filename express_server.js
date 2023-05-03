@@ -20,41 +20,51 @@ const urlDatabase = {
   "9ssm5xk": "http://www.google.com"
 };
 
+//Define route for handling new URL submissions
+app.post("/urls", (req,res) => {
+  const shortURL = generateShortUrl();
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect(`/urls/${shortURL}`);
+});
+
+//Define route for showing the index page with all existing URLs - urls)index.ejs
+
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
-app.post("/urls", (req,res) => {
-  console.log(req.body);
-  res.send("Ok");
-});
-
-for (const amount in urlDatabase) {
-  app.get(`/urls/${amount}`, (req, res) => {
-    const templateVars = {urls: urlDatabase,
-      longURL: urlDatabase[amount],
-      id: amount};
-    res.render("urls_show", templateVars);
-  });
-}
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
-
-app.get("/urls.json", (req,res) => {
-  res.json(urlDatabase);
-});
-
-app.get('/hello',(req,res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
+//Define route for showing the form to submit a new URL - url_new.ejs
 app.get("/urls/new", (req,res) => {
   res.render("urls_new");
 });
 
+//Define route for handling requests of newly added URL
+app.get("/urls/:id", (req, res) => {
+  const templateVars = {
+    urls: urlDatabase,
+    longURL: urlDatabase[req.params.id],
+    id: req.params.id
+  };
+  res.render("urls_show", templateVars);
+});
+
+//Define route for returning JSON object of the urlDatabase
+app.get("/urls.json", (req,res) => {
+  res.json(urlDatabase);
+});
+
+//Define a basic "hello world" route in root
+app.get("/", (req, res) => {
+  res.send("Hello!");
+});
+
+//Define a "hello world" in a new route that is not root
+app.get('/hello',(req,res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
+
+//Start the server
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
+});
