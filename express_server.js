@@ -49,8 +49,25 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-//Define route for handling deletion of shortened URL
+//Define route for handling the edit button press
+app.post("/urls/:id", (req, res) => {
+  const templateVars = {
+    urls: urlDatabase,
+    longURL: urlDatabase[req.params.id],
+    id: req.params.id
+  };
+  res.render("urls_show", templateVars);
+});
 
+//Define route for updating long URLS
+app.post("/urls/:id/update", (req, res) =>{
+  const id = req.params.id;
+  const newURL = req.body.newURL;
+  urlDatabase[id] = newURL;
+  res.redirect("/urls");
+});
+
+//Define route for handling deletion of shortened URL
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
   delete urlDatabase[id];

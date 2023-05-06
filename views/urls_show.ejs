@@ -22,6 +22,13 @@
         </p>
       </div>
       <div class="card-footer text-muted"></div>
+      <h5 class = "card-title">Edit</h5>
+      <td><form method="POST" action="/urls/<%= id %>/update">
+        New URL:
+        <input type="text" name="newURL" placeholder ="Type in URL">
+        <td><button type="submit" class="btn btn-primary">Update</button></form></td>
+            </tr>
+        <br>
     </div>
     <!-- Bootstrap JS -->
     <script
