@@ -1,9 +1,11 @@
 const express = require('express');
+const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = 8080;
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({extnded: true}));
+app.use(cookieParser());
 
 const generateShortUrl = () => {
   let result = '';
@@ -30,7 +32,8 @@ app.post("/urls", (req,res) => {
 //Define route for showing the index page with all existing URLs - urls)index.ejs
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { username: req.cookies["username"],
+    urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
@@ -80,6 +83,7 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
+//Define route for when someone enters username and presses login
 app.post("/user/login", (req,res) => {
   const username = req.body.username;
   res.cookie("username", username);
