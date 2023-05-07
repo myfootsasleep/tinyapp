@@ -84,9 +84,15 @@ app.get("/u/:id", (req, res) => {
 });
 
 //Define route for when someone enters username and presses login
-app.post("/user/login", (req,res) => {
+app.post("/login", (req,res) => {
   const username = req.body.username;
   res.cookie("username", username);
+  res.redirect("/urls");
+});
+
+//Deifine route for when someone presses the logout button
+app.post("/logout", (req,res) => {
+  res.clearCookie("username");
   res.redirect("/urls");
 });
 
