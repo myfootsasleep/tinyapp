@@ -80,6 +80,12 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
+app.post("/user/login", (req,res) => {
+  const username = req.body.username;
+  res.cookie("username", username);
+  res.redirect("/urls");
+});
+
 //Define route for returning JSON object of the urlDatabase
 app.get("/urls.json", (req,res) => {
   res.json(urlDatabase);
