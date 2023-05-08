@@ -24,39 +24,41 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9ssm5xk": "http://www.google.com"
 };
+app.post("/register",(req,res) => {
+  res.render("register")
+})
+// const getUserByEmail = (email) => {
+//   return Object.values(users).find((user) => user.email === email);
+// };
 
-const getUserByEmail = (email) => {
-  return Object.values(users).find((user) => user.email === email);
-};
+// app.post("/register", (req, res) => {
+//   const { email, password } = req.body;
 
-app.post("/register", (req, res) => {
-  const { email, password } = req.body;
+//   // Check if email or password are empty strings
+//   if (!email || !password) {
+//     res.status(400).send("Email and password cannot be empty");
+//     return;
+//   }
 
-  // Check if email or password are empty strings
-  if (!email || !password) {
-    res.status(400).send("Email and password cannot be empty");
-    return;
-  }
-
-  // Check if email already exists in users object
-  const existingUser = getUserByEmail(email);
-  if (existingUser) {
-    res.status(400).send("Email already registered");
-    return;
-  }
+//   // Check if email already exists in users object
+//   const existingUser = getUserByEmail(email);
+//   if (existingUser) {
+//     res.status(400).send("Email already registered");
+//     return;
+//   }
 
   // Proceed with user registration
-  const userRandomID = generateShortUrl();
-  const newUser = {
-    userId: userRandomID,
-    email: email,
-    password: password
-  };
-  users[userRandomID] = newUser;
+//   const userRandomID = generateShortUrl();
+//   const newUser = {
+//     userId: userRandomID,
+//     email: email,
+//     password: password
+//   };
+//   users[userRandomID] = newUser;
 
-  res.cookie("user_id", userRandomID);
-  res.redirect("/urls");
-});
+//   res.cookie("user_id", userRandomID);
+//   res.redirect("/urls");
+// });
 app.get("/register", (req, res) => {
   const templateVars = {
     users: null, // Set a default value for the user variable
@@ -65,6 +67,7 @@ app.get("/register", (req, res) => {
 
   res.render("register", templateVars);
 });
+
 
 // app.use((req, res, next) => {
 //   const username = req.cookies.username; // Assuming you are using cookies to store the username
@@ -77,6 +80,13 @@ app.post("/urls", (req,res) => {
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
+
+//Define route for login page
+app.post("/login", (req, res) => {
+  res.render("login");
+});
+
+//Define route for when someone enters username and presses login
 // app.post("/login", (req,res) => {
 //   const username = req.body.username;
 //   res.cookie("username", username);
@@ -155,7 +165,8 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
-//Define route for when someone enters username and presses login
+
+
 
 
 
