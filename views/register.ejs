@@ -11,10 +11,11 @@
     <title>Registration Page</title>
   </head>
   <body>
+    <%-include ('partials/_header') %>
     <h1>Registration Page!</h1>
     <div>
       <div>
-        <td><form method="POST" action="/register"></td>
+        <td><form method="POST" action="/register/createAccount"></td>
           Email: 
           <input type="email" name="email" placeholder ="Type in Email">
           <br>

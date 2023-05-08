@@ -17,7 +17,7 @@ const generateShortUrl = () => {
   return result;
 };
 let users = {
-
+  '0Tjmfm': { userId: '0Tjmfm', email: 'richardoda@gmail.com', password: 'test' }
 };
 
 const urlDatabase = {
@@ -25,55 +25,47 @@ const urlDatabase = {
   "9ssm5xk": "http://www.google.com"
 };
 app.post("/register",(req,res) => {
-  res.render("register")
-})
-// const getUserByEmail = (email) => {
-//   return Object.values(users).find((user) => user.email === email);
-// };
-
-// app.post("/register", (req, res) => {
-//   const { email, password } = req.body;
-
-//   // Check if email or password are empty strings
-//   if (!email || !password) {
-//     res.status(400).send("Email and password cannot be empty");
-//     return;
-//   }
-
-//   // Check if email already exists in users object
-//   const existingUser = getUserByEmail(email);
-//   if (existingUser) {
-//     res.status(400).send("Email already registered");
-//     return;
-//   }
-
-  // Proceed with user registration
-//   const userRandomID = generateShortUrl();
-//   const newUser = {
-//     userId: userRandomID,
-//     email: email,
-//     password: password
-//   };
-//   users[userRandomID] = newUser;
-
-//   res.cookie("user_id", userRandomID);
-//   res.redirect("/urls");
-// });
-app.get("/register", (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
   const templateVars = {
-    users: null, // Set a default value for the user variable
-    // ... other variables ...
+    user: user,
+    urls: urlDatabase,
   };
-
   res.render("register", templateVars);
 });
+const getUserByEmail = (email) => {
+  return Object.values(users).find((user) => user.email === email);
+};
 
+app.post("/register/createAccount", (req, res) => {
+  const { email, password } = req.body;
 
-// app.use((req, res, next) => {
-//   const username = req.cookies.username; // Assuming you are using cookies to store the username
-//   res.locals.username = username; // Set the username in res.locals
-//   next();
-// });
+  // Check if email or password are empty strings
+  if (!email || !password) {
+    res.status(400).send("Email and password cannot be empty");
+    return;
+  }
+
+  // Check if email already exists in users object
+  const existingUser = getUserByEmail(email);
+  if (existingUser) {
+    res.status(400).send("Email already registered");
+    return;
+  }
+
+//Proceed with user registration
+  const userRandomID = generateShortUrl();
+  const newUser = {
+    userId: userRandomID,
+    email: email,
+    password: password
+  };
+  users[userRandomID] = newUser;
+
+  res.cookie("user_id", userRandomID);
+  res.redirect("/urls");
+});
+
 //Define route for handling new URL submissions
 app.post("/urls", (req,res) => {
   const shortURL = generateShortUrl();
@@ -82,20 +74,42 @@ app.post("/urls", (req,res) => {
 });
 
 //Define route for login page
-app.post("/login", (req, res) => {
-  res.render("login");
+app.get("/login", (req, res) => {
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  const templateVars = {
+    user: user,
+    urls: urlDatabase,
+  };
+  res.render("login", templateVars);
 });
 
+
 //Define route for when someone enters username and presses login
-// app.post("/login", (req,res) => {
-//   const username = req.body.username;
-//   res.cookie("username", username);
-//   res.redirect("/urls");
-// });
+app.post("/login/verify", (req, res) => {
+  const { email, password } = req.body;
+
+  // Check if email or password are empty strings
+  if (!email || !password) {
+    res.status(400).send("Email and password cannot be empty");
+    return;
+  }
+
+  // Find the user by email
+  const user = Object.values(users).find((user) => user.email === email);
+  console.log(users);
+  // Check if user exists and if the password matches
+  if (user && user.password === password) {
+    res.cookie("user_id", user.userId);
+    res.redirect("/urls");
+  } else {
+    res.status(401).send("Invalid email or password");
+  }
+});
 //Define route for when someone presses the logout button
 app.post("/logout", (req,res) => {
   res.clearCookie("user_id");
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 //Define route for showing the index page with all existing URLs - urls_index.ejs
 app.get("/urls", (req, res) => {
@@ -132,7 +146,7 @@ app.get("/urls/:id", (req, res) => {
 });
 
 //Define route for handling the edit button press
-app.post("/urls/:id/edit", (req, res) => {
+app.get("/urls/:id/edit", (req, res) => {
   const userId = req.cookies.user_id;
   const user = users[userId];
   const templateVars = {
@@ -164,11 +178,6 @@ app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
-
-
-
-
-
 
 //Define route for returning JSON object of the urlDatabase
 app.get("/urls.json", (req,res) => {

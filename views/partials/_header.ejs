@@ -23,10 +23,9 @@
           Logged in as, <%= user.email %>!
           <form method = "POST" action="/logout">
             <button type="submit" class="btn btn-primary">Logout</button>
+            </form>
         <% } else { %>
-          <form method="POST" action="/login">
-            <button type="submit" class="btn btn-primary">Login</button>
-          </form>
+            <a href = "/login" class="btn btn-primary">Login</a>
           <form method="POST" action="/register">
             <button type="submit" class="btn btn-primary">Register</button>
           </form>

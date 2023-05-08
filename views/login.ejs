@@ -11,10 +11,11 @@
     <title>Login Page</title>
   </head>
   <body>
+    <%-include ('partials/_header') %>
     <h1>Login Page</h1>
     <div>
       <div>
-        <td><form method="POST" action="/login"></td>
+        <td><form method="POST" action="/login/verify"></td>
           Email: 
           <input type="email" name="email" placeholder ="Type in Email">
           <br>
