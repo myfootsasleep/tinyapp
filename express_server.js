@@ -22,6 +22,12 @@ const urlDatabase = {
   "9ssm5xk": "http://www.google.com"
 };
 
+
+app.use((req, res, next) => {
+  const username = req.cookies.username; // Assuming you are using cookies to store the username
+  res.locals.username = username; // Set the username in res.locals
+  next();
+});
 //Define route for handling new URL submissions
 app.post("/urls", (req,res) => {
   const shortURL = generateShortUrl();
@@ -29,17 +35,19 @@ app.post("/urls", (req,res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-//Define route for showing the index page with all existing URLs - urls)index.ejs
-
+//Define route for showing the index page with all existing URLs - urls_index.ejs
 app.get("/urls", (req, res) => {
-  const templateVars = { username: req.cookies["username"],
+  const templateVars = {
+    username: req.cookies.username,
     urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
 //Define route for showing the form to submit a new URL - url_new.ejs
 app.get("/urls/new", (req,res) => {
-  res.render("urls_new");
+  const templateVars = {
+  };
+  res.render("urls_new", templateVars);
 });
 
 //Define route for handling requests of newly added URL
@@ -89,13 +97,15 @@ app.post("/login", (req,res) => {
   res.cookie("username", username);
   res.redirect("/urls");
 });
-
-//Deifine route for when someone presses the logout button
+//Define route for when someone presses the logout button
 app.post("/logout", (req,res) => {
   res.clearCookie("username");
   res.redirect("/urls");
 });
 
+app.get("/register", (req, res) => {
+  res.render("register");
+});
 //Define route for returning JSON object of the urlDatabase
 app.get("/urls.json", (req,res) => {
   res.json(urlDatabase);
