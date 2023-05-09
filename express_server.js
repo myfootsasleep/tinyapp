@@ -7,6 +7,7 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
 
+//Function that create a unique Id used in both users and shortURLs
 const generateShortUrl = () => {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -16,19 +17,27 @@ const generateShortUrl = () => {
   }
   return result;
 };
-
+//Function that checks to see if the email is already registered or not
 const getUserByEmail = (email) => {
   return Object.values(users).find((user) => user.email === email);
 };
 
+//Function that checks to see if a shortUrl Exists or not
+const checkShortUrl = (shortURL) => {
+  return Object.keys(urlDatabase).find((shortendURL) => shortendURL === shortURL);
+};
+
+//Object of users
 let users = {
   '0Tjmfm': { userId: '0Tjmfm', email: 'richardoda@gmail.com', password: 'test' }
 };
-
+//Object of urlDatabase
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9ssm5xk": "http://www.google.com"
 };
+
+// Define route for /register path essentially calls the /register page
 app.get("/register",(req,res) => {
   const userId = req.cookies.user_id;
   const user = users[userId];
@@ -42,7 +51,7 @@ app.get("/register",(req,res) => {
     res.get("register", templateVars);
   }
 });
-
+//Define route pate for when someone creates a new account
 app.post("/register/createAccount", (req, res) => {
   const { email, password } = req.body;
 
@@ -192,8 +201,14 @@ app.post("/urls/:id/delete", (req, res) => {
 
 //Define route for returning to full website once clicked
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
+  const shortURL = req.params.id;
+  const existingURL = checkShortUrl(shortURL);
+  if (existingURL) {
+    const longURL = urlDatabase[req.params.id];
+    res.redirect(longURL);
+  } else {
+    res.status(400).send("Trying to TinyLink that doesn't exist");
+  }
 });
 
 //Define route for returning JSON object of the urlDatabase
