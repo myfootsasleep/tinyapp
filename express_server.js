@@ -16,6 +16,11 @@ const generateShortUrl = () => {
   }
   return result;
 };
+
+const getUserByEmail = (email) => {
+  return Object.values(users).find((user) => user.email === email);
+};
+
 let users = {
   '0Tjmfm': { userId: '0Tjmfm', email: 'richardoda@gmail.com', password: 'test' }
 };
@@ -24,18 +29,18 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9ssm5xk": "http://www.google.com"
 };
-app.post("/register",(req,res) => {
+app.get("/register",(req,res) => {
   const userId = req.cookies.user_id;
   const user = users[userId];
   const templateVars = {
     user: user,
     urls: urlDatabase,
   };
+  if (user) {
+    res.redirect("/urls");
+  }
   res.render("register", templateVars);
 });
-const getUserByEmail = (email) => {
-  return Object.values(users).find((user) => user.email === email);
-};
 
 app.post("/register/createAccount", (req, res) => {
   const { email, password } = req.body;
@@ -53,7 +58,7 @@ app.post("/register/createAccount", (req, res) => {
     return;
   }
 
-//Proceed with user registration
+  //Proceed with user registration
   const userRandomID = generateShortUrl();
   const newUser = {
     userId: userRandomID,
@@ -81,10 +86,11 @@ app.get("/login", (req, res) => {
     user: user,
     urls: urlDatabase,
   };
+  if (user) {
+    res.redirect("/urls");
+  }
   res.render("login", templateVars);
 });
-
-
 //Define route for when someone enters username and presses login
 app.post("/login/verify", (req, res) => {
   const { email, password } = req.body;
@@ -97,7 +103,7 @@ app.post("/login/verify", (req, res) => {
 
   // Find the user by email
   const user = Object.values(users).find((user) => user.email === email);
-  console.log(users);
+  // console.log(users);
   // Check if user exists and if the password matches
   if (user && user.password === password) {
     res.cookie("user_id", user.userId);
