@@ -38,8 +38,9 @@ app.get("/register",(req,res) => {
   };
   if (user) {
     res.redirect("/urls");
+  } else {
+    res.get("register", templateVars);
   }
-  res.render("register", templateVars);
 });
 
 app.post("/register/createAccount", (req, res) => {
@@ -73,9 +74,15 @@ app.post("/register/createAccount", (req, res) => {
 
 //Define route for handling new URL submissions
 app.post("/urls", (req,res) => {
-  const shortURL = generateShortUrl();
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect(`/urls/${shortURL}`);
+  const userId = req.cookies.user_id;
+  const user = users[userId];
+  if (!user) {
+    res.status(400).send("You can't shorten URLs unless you are a user, please login or register!");
+  } else {
+    const shortURL = generateShortUrl();
+    urlDatabase[shortURL] = req.body.longURL;
+    res.redirect(`/urls/${shortURL}`);
+  }
 });
 
 //Define route for login page
@@ -137,8 +144,9 @@ app.get("/urls/new", (req, res) => {
   };
   if (!user) {
     res.redirect("/login");
+  } else {
+    res.render("urls_new", templateVars);
   }
-  res.render("urls_new", templateVars);
 });
 
 //Define route for handling requests of newly added URL
