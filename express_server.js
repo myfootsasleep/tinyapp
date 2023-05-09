@@ -135,6 +135,9 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: user,
   };
+  if (!user) {
+    res.redirect("/login");
+  }
   res.render("urls_new", templateVars);
 });
 
