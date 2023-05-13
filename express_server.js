@@ -29,12 +29,18 @@ const checkShortUrl = (shortURL) => {
 
 //Object of users
 let users = {
-  '0Tjmfm': { userId: '0Tjmfm', email: 'richardoda@gmail.com', password: 'test' }
+  'aJ481W': { userId: 'aJ481W', email: 'richardoda@gmail.com', password: 'test' }
 };
 //Object of urlDatabase
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9ssm5xk": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 // Define route for /register path essentially calls the /register page
@@ -89,7 +95,10 @@ app.post("/urls", (req,res) => {
     res.status(400).send("You can't shorten URLs unless you are a user, please login or register!");
   } else {
     const shortURL = generateShortUrl();
-    urlDatabase[shortURL] = req.body.longURL;
+    urlDatabase[shortURL] = {
+      longURL: req.body.longURL,
+      userID: userId
+    };
     res.redirect(`/urls/${shortURL}`);
   }
 });
@@ -164,10 +173,11 @@ app.get("/urls/:id", (req, res) => {
   const user = users[userId];
   const templateVars = {
     urls: urlDatabase,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id].longURL,
     id: req.params.id,
     user: user
   };
+  console.log(templateVars);
   res.render("urls_show", templateVars);
 });
 
