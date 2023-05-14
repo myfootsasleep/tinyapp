@@ -27,6 +27,10 @@ const checkShortUrl = (shortURL) => {
   return Object.keys(urlDatabase).find((shortendURL) => shortendURL === shortURL);
 };
 
+//Function that returns URLs where the userID is equal to the id of the currently logged-in user.
+const urlsForUser = (id) => {
+  return Object.keys(urlDatabase).find((user) => user === id);
+};
 //Object of users
 let users = {
   'aJ481W': { userId: 'aJ481W', email: 'richardoda@gmail.com', password: 'test' }
@@ -54,7 +58,7 @@ app.get("/register",(req,res) => {
   if (user) {
     res.redirect("/urls");
   } else {
-    res.get("register", templateVars);
+    res.render("register", templateVars);
   }
 });
 //Define route pate for when someone creates a new account
@@ -150,7 +154,12 @@ app.get("/urls", (req, res) => {
     user: user,
     urls: urlDatabase,
   };
-  res.render("urls_index", templateVars);
+  if (!user) {
+    res.status(400).send("You can't view shortned URL page unless you are logged in");
+  } else {
+    res.render("urls_index", templateVars);
+  }
+
 });
 
 //Define route for showing the form to submit a new URL - url_new.ejs
