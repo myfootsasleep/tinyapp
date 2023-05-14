@@ -223,7 +223,7 @@ app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
   const existingURL = checkShortUrl(shortURL);
   if (existingURL) {
-    const longURL = urlDatabase[req.params.id];
+    const longURL = urlDatabase[req.params.id].longURL;
     res.redirect(longURL);
   } else {
     res.status(400).send("Trying to TinyLink that doesn't exist");
