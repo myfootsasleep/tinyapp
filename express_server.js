@@ -1,11 +1,14 @@
 const express = require('express');
-const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 const app = express();
 const PORT = 8080;
-const bcrypt = require("bcryptjs")
+const bcrypt = require("bcryptjs");
 app.set("view engine", "ejs");
 app.use(express.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ["sefdaveaf"],
+}));
 
 //Function that create a unique Id used in both users and shortURLs
 const generateShortUrl = () => {
@@ -54,7 +57,7 @@ const urlDatabase = {
 
 // Define route for /register path essentially calls the /register page
 app.get("/register",(req,res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const user = users[userId];
   const templateVars = {
     user: user,
@@ -93,13 +96,13 @@ app.post("/register/createAccount", (req, res) => {
   };
   users[userRandomID] = newUser;
 
-  res.cookie("user_id", userRandomID);
+  req.session.user.id = userRandomID;
   res.redirect("/urls");
 });
 
 //Define route for handling new URL submissions
 app.post("/urls", (req,res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const user = users[userId];
   if (!user) {
     res.status(400).send("You can't shorten URLs unless you are a user, please login or register!");
@@ -115,7 +118,7 @@ app.post("/urls", (req,res) => {
 
 //Define route for login page
 app.get("/login", (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const user = users[userId];
   const templateVars = {
     user: user,
@@ -138,10 +141,9 @@ app.post("/login/verify", (req, res) => {
 
   // Find the user by email
   const user = Object.values(users).find((user) => user.email === email);
-  // console.log(users);
   // Check if user exists and if the password matches
   if (user && bcrypt.compareSync(password, hashedPass)) {
-    res.cookie("user_id", user.userId);
+    req.session.user_id = user.userId;
     res.redirect("/urls");
   } else {
     res.status(401).send("Invalid email or password");
@@ -149,12 +151,12 @@ app.post("/login/verify", (req, res) => {
 });
 //Define route for when someone presses the logout button
 app.post("/logout", (req,res) => {
-  res.clearCookie("user_id");
+  req.session.user_id = null;
   res.redirect("/login");
 });
 //Define route for showing the index page with all existing URLs - urls_index.ejs
 app.get("/urls", (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const user = users[userId];
   const urls = urlsForUser(userId);
   const templateVars = {
@@ -164,14 +166,13 @@ app.get("/urls", (req, res) => {
   if (!user) {
     res.status(400).send("You can't view shortened URL page unless you are logged in");
   } else {
-    console.log(templateVars);
     res.render("urls_index", templateVars);
   }
 });
 
 //Define route for showing the form to submit a new URL - url_new.ejs
 app.get("/urls/new", (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const user = users[userId];
   const templateVars = {
     user: user,
@@ -185,7 +186,7 @@ app.get("/urls/new", (req, res) => {
 
 //Define route for handling requests of newly added URL
 app.get("/urls/:id", (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const user = users[userId];
   const templateVars = {
     urls: urlDatabase,
@@ -193,13 +194,12 @@ app.get("/urls/:id", (req, res) => {
     id: req.params.id,
     user: user
   };
-  console.log(templateVars);
   res.render("urls_show", templateVars);
 });
 
 //Define route for handling the edit button press
 app.get("/urls/:id/edit", (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const user = users[userId];
   const url = urlDatabase[req.params.id];
   if (!user || !url || url.userID !== userId) {
@@ -225,7 +225,7 @@ app.post("/urls/:id/update", (req, res) =>{
 //Define route for handling deletion of shortened URL
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
   const url = urlDatabase[req.params.id];
   const user = users[userId];
   if (!user || !url || url.userID !== userId) {
