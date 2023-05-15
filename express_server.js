@@ -29,11 +29,16 @@ const checkShortUrl = (shortURL) => {
 
 //Function that returns URLs where the userID is equal to the id of the currently logged-in user.
 const urlsForUser = (id) => {
-  return Object.keys(urlDatabase).find((user) => user === id);
+  return Object.entries(urlDatabase).reduce((acc, [key, value]) => {
+    if (value.userID === id) {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
 };
 //Object of users
 let users = {
-  'aJ481W': { userId: 'aJ481W', email: 'richardoda@gmail.com', password: 'test' }
+  'aJ48lW': { userId: 'aJ48lW', email: 'richardoda@gmail.com', password: 'test' }
 };
 //Object of urlDatabase
 const urlDatabase = {
@@ -150,16 +155,17 @@ app.post("/logout", (req,res) => {
 app.get("/urls", (req, res) => {
   const userId = req.cookies.user_id;
   const user = users[userId];
+  const urls = urlsForUser(userId);
   const templateVars = {
     user: user,
-    urls: urlDatabase,
+    urls: urls,
   };
   if (!user) {
-    res.status(400).send("You can't view shortned URL page unless you are logged in");
+    res.status(400).send("You can't view shortened URL page unless you are logged in");
   } else {
+    console.log(templateVars);
     res.render("urls_index", templateVars);
   }
-
 });
 
 //Define route for showing the form to submit a new URL - url_new.ejs
@@ -194,6 +200,10 @@ app.get("/urls/:id", (req, res) => {
 app.get("/urls/:id/edit", (req, res) => {
   const userId = req.cookies.user_id;
   const user = users[userId];
+  const url = urlDatabase[req.params.id];
+  if (!user || !url || url.userID !== userId) {
+    res.status(400).send("Error, either you are not logged in, going to a link that does not exist, or do not have rights to visit");
+  }
   const templateVars = {
     urls: urlDatabase,
     longURL: urlDatabase[req.params.id],
@@ -214,6 +224,12 @@ app.post("/urls/:id/update", (req, res) =>{
 //Define route for handling deletion of shortened URL
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
+  const userId = req.cookies.user_id;
+  const url = urlDatabase[req.params.id];
+  const user = users[userId];
+  if (!user || !url || url.userID !== userId) {
+    res.status(400).send("Error, either you are not logged in, going to a link that does not exist, or do not have rights to visit");
+  }
   delete urlDatabase[id];
   res.redirect("/urls");
 });
