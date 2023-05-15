@@ -1,5 +1,6 @@
 const express = require('express');
 const cookieSession = require("cookie-session");
+const getUserByEmail = require("./helper");
 const app = express();
 const PORT = 8080;
 const bcrypt = require("bcryptjs");
@@ -19,10 +20,6 @@ const generateShortUrl = () => {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
-};
-//Function that checks to see if the email is already registered or not
-const getUserByEmail = (email) => {
-  return Object.values(users).find((user) => user.email === email);
 };
 
 //Function that checks to see if a shortUrl Exists or not
