@@ -2,7 +2,7 @@ const express = require('express');
 const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = 8080;
-
+const bcrypt = require("bcryptjs")
 app.set("view engine", "ejs");
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -85,10 +85,11 @@ app.post("/register/createAccount", (req, res) => {
 
   //Proceed with user registration
   const userRandomID = generateShortUrl();
+  const hashedPass = bcrypt.hashSync(password, 10);
   const newUser = {
     userId: userRandomID,
     email: email,
-    password: password
+    password: hashedPass
   };
   users[userRandomID] = newUser;
 
@@ -128,7 +129,7 @@ app.get("/login", (req, res) => {
 //Define route for when someone enters username and presses login
 app.post("/login/verify", (req, res) => {
   const { email, password } = req.body;
-
+  const hashedPass = bcrypt.hashSync(password, 10);
   // Check if email or password are empty strings
   if (!email || !password) {
     res.status(400).send("Email and password cannot be empty");
@@ -139,7 +140,7 @@ app.post("/login/verify", (req, res) => {
   const user = Object.values(users).find((user) => user.email === email);
   // console.log(users);
   // Check if user exists and if the password matches
-  if (user && user.password === password) {
+  if (user && bcrypt.compareSync(password, hashedPass)) {
     res.cookie("user_id", user.userId);
     res.redirect("/urls");
   } else {
