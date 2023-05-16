@@ -1,6 +1,6 @@
 const express = require('express');
 const cookieSession = require("cookie-session");
-const getUserByEmail = require("./helper");
+const {getUserByEmail} = require("./helper.js");
 const app = express();
 const PORT = 8080;
 const bcrypt = require("bcryptjs");
@@ -66,37 +66,6 @@ app.get("/register",(req,res) => {
     res.render("register", templateVars);
   }
 });
-//Define route pate for when someone creates a new account
-app.post("/register/createAccount", (req, res) => {
-  const { email, password } = req.body;
-
-  // Check if email or password are empty strings
-  if (!email || !password) {
-    res.status(400).send("Email and password cannot be empty");
-    return;
-  }
-
-  // Check if email already exists in users object
-  const existingUser = getUserByEmail(email);
-  if (existingUser) {
-    res.status(400).send("Email already registered");
-    return;
-  }
-
-  //Proceed with user registration
-  const userRandomID = generateShortUrl();
-  const hashedPass = bcrypt.hashSync(password, 10);
-  const newUser = {
-    userId: userRandomID,
-    email: email,
-    password: hashedPass
-  };
-  users[userRandomID] = newUser;
-
-  req.session.user.id = userRandomID;
-  res.redirect("/urls");
-});
-
 //Define route for handling new URL submissions
 app.post("/urls", (req,res) => {
   const userId = req.session.user_id;
@@ -112,6 +81,38 @@ app.post("/urls", (req,res) => {
     res.redirect(`/urls/${shortURL}`);
   }
 });
+
+//Define route pate for when someone creates a new account
+app.post("/register/createAccount", (req, res) => {
+  const { email, password } = req.body;
+
+  // Check if email or password are empty strings
+  if (!email || !password) {
+    res.status(400).send("Email and password cannot be empty");
+    return;
+  }
+
+  // Check if email already exists in users object
+  const existingUser = getUserByEmail(email,users);
+  if (existingUser) {
+    res.status(400).send("Email already registered");
+    return;
+  } else {
+
+    // Proceed with user registration
+    const userRandomID = generateShortUrl();
+    const hashedPass = bcrypt.hashSync(password, 10);
+    const newUser = {
+      userId: userRandomID,
+      email: email,
+      password: hashedPass,
+    };
+    req.session.user_id = newUser.userId;
+    users[userRandomID] = newUser;
+    res.redirect("/urls");
+  }
+});
+
 
 //Define route for login page
 app.get("/login", (req, res) => {
@@ -215,7 +216,7 @@ app.get("/urls/:id/edit", (req, res) => {
 app.post("/urls/:id/update", (req, res) =>{
   const id = req.params.id;
   const newURL = req.body.newURL;
-  urlDatabase[id] = newURL;
+  urlDatabase[id].longURL = newURL;
   res.redirect("/urls");
 });
 
