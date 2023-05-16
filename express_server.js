@@ -162,7 +162,8 @@ app.get("/urls", (req, res) => {
     urls: urls,
   };
   if (!user) {
-    res.status(400).send("You can't view shortened URL page unless you are logged in");
+    //res.status(400).send("You can't view shortened URL page unless you are logged in");
+    res.redirect("/login");
   } else {
     res.render("urls_index", templateVars);
   }
