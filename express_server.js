@@ -29,16 +29,17 @@ const checkShortUrl = (shortURL) => {
 
 //Function that returns URLs where the userID is equal to the id of the currently logged-in user.
 const urlsForUser = (id) => {
-  return Object.entries(urlDatabase).reduce((acc, [key, value]) => {
+  return Object.entries(urlDatabase).reduce((userUrls, [key, value]) => {
     if (value.userID === id) {
-      acc[key] = value;
+      userUrls[key] = value;
     }
-    return acc;
+    return userUrls;
   }, {});
 };
 //Object of users
 let users = {
-  'aJ48lW': { userId: 'aJ48lW', email: 'richardoda@gmail.com', password: 'test' }
+  //Test user: password = test
+  'aJ48lW': { userId: 'aJ48lW', email: 'richardoda@gmail.com', password: '$2a$10$HHoNnJZma5YLrMCwLo40t.vmLNwbetEdxCRpGpCUyxpDDZY8KEu2m' }
 };
 //Object of urlDatabase
 const urlDatabase = {
@@ -130,7 +131,7 @@ app.get("/login", (req, res) => {
 //Define route for when someone enters username and presses login
 app.post("/login/verify", (req, res) => {
   const { email, password } = req.body;
-  const hashedPass = bcrypt.hashSync(password, 10);
+  //const hashedPass = bcrypt.hashSync(password, 10);
   // Check if email or password are empty strings
   if (!email || !password) {
     res.status(400).send("Email and password cannot be empty");
@@ -140,7 +141,7 @@ app.post("/login/verify", (req, res) => {
   // Find the user by email
   const user = Object.values(users).find((user) => user.email === email);
   // Check if user exists and if the password matches
-  if (user && bcrypt.compareSync(password, hashedPass)) {
+  if (user && bcrypt.compareSync(password, user["password"])) {
     req.session.user_id = user.userId;
     res.redirect("/urls");
   } else {
@@ -246,21 +247,10 @@ app.get("/u/:id", (req, res) => {
   }
 });
 
-//Define route for returning JSON object of the urlDatabase
-app.get("/urls.json", (req,res) => {
-  res.json(urlDatabase);
-});
-
 //Define a basic "hello world" route in root
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect("/login");
 });
-
-//Define a "hello world" in a new route that is not root
-app.get('/hello',(req,res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 //Start the server
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
