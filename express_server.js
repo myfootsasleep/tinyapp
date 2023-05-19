@@ -108,7 +108,7 @@ app.get("/u/:id", (req, res) => {
 });
 
 //Define route pate for when someone creates a new account
-app.post("/register/createAccount", (req, res) => {
+app.post("/register", (req, res) => {
   const { email, password } = req.body;
   // Check if email or password are empty strings
   if (!email || !password) {
@@ -136,7 +136,7 @@ app.post("/register/createAccount", (req, res) => {
 });
 
 //Define route for when someone enters username and presses login
-app.post("/login/verify", (req, res) => {
+app.post("/login", (req, res) => {
   const { email, password } = req.body;
   //const hashedPass = bcrypt.hashSync(password, 10);
   // Check if email or password are empty strings
