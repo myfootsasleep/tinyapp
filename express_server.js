@@ -124,6 +124,10 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
+  const url = urlDatabase[req.params.id];
+  if (!user || !url || url.userID !== userId) {
+    res.status(400).send("Error, either you are not logged in, going to a link that does not exist, or do not have rights to visit");
+  }
   const templateVars = {
     urls: urlDatabase,
     longURL: urlDatabase[req.params.id].longURL,
@@ -133,22 +137,6 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-//Define route for handling the edit button press
-app.get("/urls/:id/edit", (req, res) => {
-  const userId = req.session.user_id;
-  const user = users[userId];
-  const url = urlDatabase[req.params.id];
-  if (!user || !url || url.userID !== userId) {
-    res.status(400).send("Error, either you are not logged in, going to a link that does not exist, or do not have rights to visit");
-  }
-  const templateVars = {
-    urls: urlDatabase,
-    longURL: urlDatabase[req.params.id],
-    id: req.params.id,
-    user: user
-  };
-  res.render("urls_show", templateVars);
-});
 
 //Define route for returning to full website once clicked
 app.get("/u/:id", (req, res) => {
