@@ -165,7 +165,13 @@ app.post("/logout", (req,res) => {
 app.post("/urls/:id/update", (req, res) =>{
   const id = req.params.id;
   const newURL = req.body.newURL;
+  const userId = req.session.user_id;
+  const url = urlDatabase[req.params.id];
+  const user = users[userId];
   urlDatabase[id].longURL = newURL;
+  if (!user || !url || url.userID !== userId) {
+    res.status(400).send("Error, either you are not logged in, going to a link that does not exist, or do not have rights to visit");
+  }
   res.redirect("/urls");
 });
 

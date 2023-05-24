@@ -1,4 +1,4 @@
-const {users, urlDatabase} = require("./database");
+const {urlDatabase} = require("./database");
 
 //Function that checks to see if the email is already registered or not
 const getUserByEmail = (email, db) => {
